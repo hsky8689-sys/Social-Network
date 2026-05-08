@@ -13,8 +13,7 @@ import validatori.ValidatorEvent;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-public class DBServiceEvents implements EventRepoActions<Event, User>,
-        Observable<ObserverGUI, CRUDActions> {
+public class DBServiceEvents implements EventRepoActions<Event, User>,Observable<ObserverGUI, CRUDActions> {
 
     protected DBRepoEvents repo;
     private final ObservableSupport obs = new ObservableSupport();
@@ -24,11 +23,11 @@ public class DBServiceEvents implements EventRepoActions<Event, User>,
     }
 
     @Override
-    public void addObserver(ObserverGUI o)                            { obs.addObserver(o); }
+    public void addObserver(ObserverGUI o){ obs.addObserver(o); }
     @Override
-    public void removeObserver(ObserverGUI o)                         { obs.removeObserver(o); }
+    public void removeObserver(ObserverGUI o){ obs.removeObserver(o); }
     @Override
-    public void notifyObservers(CRUDActions action, Object payload)   { obs.notifyObservers(action, payload); }
+    public void notifyObservers(CRUDActions action, Object payload) { obs.notifyObservers(action, payload); }
 
     public String valideaza(String[] components) {
         return new ValidatorEvent(components).valideaza();
@@ -50,7 +49,6 @@ public class DBServiceEvents implements EventRepoActions<Event, User>,
     @Override
     public boolean adauga(Event o) {
         boolean ok = repo.adauga(o);
-        // payload = evenimentul adaugat
         if (ok) notifyObservers(CRUDActions.EVENT_ADDED, o);
         return ok;
     }
