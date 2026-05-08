@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<AnchorPane prefHeight="400.0" prefWidth="488.0"
+            xmlns="http://javafx.com/javafx/24"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="controller.ControllerRate"
+            >
+    <children>
+        <ComboBox fx:id="comboBox" layoutX="85.0" layoutY="17.0" promptText="Selecteaza tip" onAction="#onFilter"/>
+        <TableView fx:id="tableView" layoutX="85.0" layoutY="140.0" prefHeight="200.0" prefWidth="375">
+             <columns>
+                 <TableColumn fx:id="tableColumnId" prefWidth="75.0" text="id"/>
+                 <TableColumn fx:id="tableColumnUsername" prefWidth="75.0" text="username"/>
+                 <TableColumn fx:id="tableColumnTip" prefWidth="75.0" text="tip"/>
+                 <TableColumn fx:id="tableColumnViteza" prefWidth="75.0" text="viteza"/>
+                 <TableColumn fx:id="tableColumnRezistenta" prefWidth="75.0" text="rezistenta"/>
+             </columns>
+        </TableView>
+        <Button fx:id="deleteButton" layoutX="211.0" layoutY="359.0" mnemonicParsing="false" onAction="#onDelete" text="Sterge"/>
+    </children>
+</AnchorPane>
