@@ -11,8 +11,7 @@ import repository.DBRepoArray;
 import java.sql.SQLException;
 import java.util.List;
 
-public class DBServiceMesaje extends DBArrayService<Message, User>
-        implements Observable<ObserverGUI, CRUDActions> {
+public class DBServiceMesaje extends DBArrayService<Message, User> implements Observable<ObserverGUI, CRUDActions> {
 
     private final ObservableSupport obs = new ObservableSupport();
 
@@ -21,16 +20,15 @@ public class DBServiceMesaje extends DBArrayService<Message, User>
     }
 
     @Override
-    public void addObserver(ObserverGUI o)                       { obs.addObserver(o); }
+    public void addObserver(ObserverGUI o){ obs.addObserver(o); }
     @Override
-    public void removeObserver(ObserverGUI o)                    { obs.removeObserver(o); }
+    public void removeObserver(ObserverGUI o){ obs.removeObserver(o); }
     @Override
     public void notifyObservers(CRUDActions action, Object payload) { obs.notifyObservers(action, payload); }
 
     @Override
     public boolean adauga(Message m) {
         boolean ok = repo.adauga(m);
-        // payload = id-ul senderului — UI-ul il foloseste sa stie din ce conversatie vine
         if (ok) notifyObservers(CRUDActions.MESSAGE_RECEIVED, m.getSender());
         return ok;
     }
