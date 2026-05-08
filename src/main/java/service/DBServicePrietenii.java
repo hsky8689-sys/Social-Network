@@ -25,16 +25,15 @@ public class DBServicePrietenii extends DBService<Friendship>
     }
 
     @Override
-    public void addObserver(ObserverGUI o)                            { obs.addObserver(o); }
+    public void addObserver(ObserverGUI o){ obs.addObserver(o); }
     @Override
-    public void removeObserver(ObserverGUI o)                         { obs.removeObserver(o); }
+    public void removeObserver(ObserverGUI o){ obs.removeObserver(o); }
     @Override
-    public void notifyObservers(CRUDActions action, Object payload)   { obs.notifyObservers(action, payload); }
+    public void notifyObservers(CRUDActions action, Object payload) { obs.notifyObservers(action, payload); }
 
     @Override
     public boolean adauga(Friendship o) {
         boolean ok = repo.adauga(o);
-        // payload = Friendship adaugata — UI-ul poate sti cine a trimis cererea
         if (ok) notifyObservers(CRUDActions.FRIEND_ADDED, o);
         return ok;
     }
@@ -52,7 +51,6 @@ public class DBServicePrietenii extends DBService<Friendship>
     @Override
     public List<Friendship> utilizatori() throws SQLException { return repo.utilizatori(); }
 
-    // ---- DFS pentru comunitati (neatins) ----
     private int dfs(User u, List<User> visited, int cc, int drum, Network where) throws SQLException {
         visited.add(u);
         if (!comunitati.get(cc).contains(u)) comunitati.get(cc).add(u);
