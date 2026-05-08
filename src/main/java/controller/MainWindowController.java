@@ -20,37 +20,23 @@ import service.Network;
 import java.util.Date;
 import java.util.List;
 
-/**
- * Controller principal al ferestrei sociale.
- * Implementeaza ObserverGUI si se inregistreaza la:
- *   - DBServiceMesaje    → notifica la MESSAGE_RECEIVED
- *   - DBServicePrietenii → notifica la FRIEND_ADDED / FRIEND_REMOVED
- *   - DBServiceEvents    → notifica la EVENT_ADDED / EVENT_REMOVED
- *
- * update() este apelat pe FX thread (garantat de ObservableSupport).
- * Logica de refresh:
- *   - MESSAGE_RECEIVED : daca tab Chat e activ SI conversatia deschisa e cu senderul → reincarca mesajele
- *   - FRIEND_ADDED/REMOVED : daca tab Prieteni e activ → reincarca lista prieteni
- *   - EVENT_ADDED/REMOVED : daca tab Evenimente e activ → reincarca lista evenimente
- */
 public class MainWindowController implements ObserverGUI {
 
     private final Network network;
     private final Stage stage;
     private BorderPane root;
 
-    // Referinte catre TabPane si tab-uri pentru a sti care e activ
     private TabPane tabPane;
     private Tab chatTab, prieteniTab, evenimenteTab, notificariTab;
 
-    // Runnable-uri de refresh expuse intern din fiecare panel
-    private Runnable refreshMessages;      // reincarca mesajele conversatiei curente
-    private Runnable refreshConversations; // reincarca lista conversatii din stanga
-    private Runnable refreshFriends;       // reincarca lista prieteni
-    private Runnable refreshEvents;        // reincarca lista evenimente
-    private Runnable refreshNotifications; // reincarca panelul notificari
+    
+    private Runnable refreshMessages;      
+    private Runnable refreshConversations; 
+    private Runnable refreshFriends;       
+    private Runnable refreshEvents;        
+    private Runnable refreshNotifications; 
 
-    // State chat: id-ul userului cu care e deschisa conversatia acum
+ 
     private Long openConversationWithId = null;
     private User<Long> logged;
 
@@ -61,8 +47,6 @@ public class MainWindowController implements ObserverGUI {
         buildView();
         registerAsObserver();
     }
-
-    // ==================== OBSERVER REGISTRATION ====================
 
     private void registerAsObserver() {
         network.getAdminMesaje().addObserver(this);
@@ -85,19 +69,17 @@ public class MainWindowController implements ObserverGUI {
                 Long senderId = (Long) payload;
                 Long myId = logged.getId();
 
-                // Ignora daca EU sunt senderul (mesaj propriu, deja adaugat in UI)
                 if (senderId.equals(myId)) return;
 
-                // Daca tab Chat e activ si am conversatia cu senderul deschisa → refresh mesaje
                 if (isChatTabActive()) {
                     if (senderId.equals(openConversationWithId)) {
                         if (refreshMessages != null) Platform.runLater(refreshMessages);
                     } else {
-                        // Conversatie diferita → adauga in lista si pune badge
+                        
                         if (refreshConversations != null) Platform.runLater(refreshConversations);
                     }
                 }
-                // Notificari se actualizeaza mereu (sunt in fundal)
+                
                 if (refreshNotifications != null) Platform.runLater(refreshNotifications);
             }
 
@@ -111,7 +93,7 @@ public class MainWindowController implements ObserverGUI {
                 if (isEvenimenteTabActive()) {
                     if (refreshEvents != null) Platform.runLater(refreshEvents);
                 }
-                // Notificari (abonamente) pot fi afectate
+            
                 if (refreshNotifications != null) Platform.runLater(refreshNotifications);
             }
 
@@ -148,7 +130,7 @@ public class MainWindowController implements ObserverGUI {
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
         Button logoutBtn = new Button("Logout");
-        logoutBtn.setOnAction(e -> stage.close()); // onCloseRequest face logout + removeObserver
+        logoutBtn.setOnAction(e -> stage.close());
         topBar.getChildren().addAll(userInfo, spacer, logoutBtn);
         root.setTop(topBar);
 
@@ -217,7 +199,6 @@ public class MainWindowController implements ObserverGUI {
                             if (!userItems.contains(label)) userItems.add(label);
                         });
             } catch (Exception e) { showError("Eroare conversatii: " + e.getMessage()); }
-            // re-selectam daca era ceva selectat
             if (sel != null && userItems.contains(sel))
                 userListView.getSelectionModel().select(sel);
         };
@@ -271,8 +252,6 @@ public class MainWindowController implements ObserverGUI {
             String txt = msgField.getText().trim();
             if (txt.isEmpty()) return;
             Long myId = logged.getId();
-            // adauga() va declansa notifyObservers(MESSAGE_RECEIVED, myId)
-            // update() il ignora pentru ca senderId == myId → nu da refresh dublu
             if (network.getAdminMesaje().adauga(new Message(0L, myId, openConversationWithId, txt, new Date()))) {
                 messageItems.add("[Tu] " + txt);
                 msgField.clear();
@@ -329,7 +308,6 @@ public class MainWindowController implements ObserverGUI {
             } else {
                 boolean ok = network.getAdminPrietenii().adauga(fr);
                 searchResultLabel.setText(ok ? "Prieten adaugat!" : "Nu s-a putut adauga.");
-                // adauga() declanseaza FRIEND_ADDED → update() → refreshFriends (daca tab activ)
             }
         });
 
@@ -372,7 +350,6 @@ public class MainWindowController implements ObserverGUI {
             Long myId = (Long) network.getLogged_in().getId();
             boolean ok = network.getAdminPrietenii().sterge(new Friendship(myId, otherId));
             actionLabel.setText(ok ? "Prietenie stearsa." : "Eroare la stergere.");
-            // sterge() declanseaza FRIEND_REMOVED → update() → refreshFriends
         });
 
         pane.getChildren().addAll(
@@ -381,8 +358,6 @@ public class MainWindowController implements ObserverGUI {
                 new HBox(8, removeFriendBtn, refreshBtn), actionLabel);
         return pane;
     }
-
-    // ==================== EVENIMENTE PANEL ====================
 
     private Parent buildEvenimentePanel() {
         VBox pane = new VBox(10);
@@ -422,7 +397,6 @@ public class MainWindowController implements ObserverGUI {
             boolean ok = network.getAdminEvents().adauga(new Event(0L, name, myId));
             createStatus.setText(ok ? "Eveniment creat!" : "Eroare la creare.");
             eventNameField.clear();
-            // adauga() declanseaza EVENT_ADDED → update() → refreshEvents (daca tab activ)
         });
 
         Label subLabel = new Label("Aboneaza-te / Dezaboneaza-te:");
@@ -461,8 +435,6 @@ public class MainWindowController implements ObserverGUI {
                 subLabel, subBar, subStatus);
         return pane;
     }
-
-    // ==================== NOTIFICARI PANEL ====================
 
     private Parent buildNotificariPanel() {
         VBox pane = new VBox(10);
@@ -527,8 +499,6 @@ public class MainWindowController implements ObserverGUI {
                 new Separator(), eventsSubLabel, myEventsView);
         return pane;
     }
-
-    // ==================== UTILS ====================
 
     private void showError(String msg) {
         Alert alert = new Alert(Alert.AlertType.ERROR, msg, ButtonType.OK);
