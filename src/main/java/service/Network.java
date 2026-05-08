@@ -12,7 +12,6 @@ public class Network {
     private DBServiceCarduri adminCarduri;
     private DBServiceEvents adminEvents;
     private DBServiceRaces adminRaces;
-    User<Long> logged_in;
     public Network(DBServicePersoane adminPersoane, DBServiceRate adminRate, DBServicePrietenii adminPrietenii, DBServiceMesaje adminMesaje,DBServiceCarduri adminCarduri, DBServiceEvents adminEvents,DBServiceRaces adminRaces) {
         this.adminPersoane = adminPersoane;
         this.adminRate = adminRate;
@@ -21,7 +20,6 @@ public class Network {
         this.adminCarduri = adminCarduri;
         this.adminEvents = adminEvents;
         this.adminRaces = adminRaces;
-        logged_in = null;
     }
     public User<Long> tryLogin(String user, String pass) throws SQLException {
        try {
@@ -40,14 +38,6 @@ public class Network {
            System.err.println(e.getMessage());
        }
         return logged_in;
-    }
-    public User getLogged_in(){
-      return logged_in;
-    }
-    public boolean tryLogout(){
-        if(logged_in==null)return false;
-        logged_in=null;
-        return true;
     }
     public DBServicePersoane getAdminPersoane() {
         return adminPersoane;
