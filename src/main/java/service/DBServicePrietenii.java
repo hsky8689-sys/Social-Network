@@ -13,9 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class DBServicePrietenii extends DBService<Friendship>
-        implements Observable<ObserverGUI, CRUDActions> {
-
+public class DBServicePrietenii extends DBService<Friendship> implements Observable<ObserverGUI, CRUDActions> {
     private static int maxComunitati = 10000;
     private List<List<User>> comunitati;
     private final ObservableSupport obs = new ObservableSupport();
